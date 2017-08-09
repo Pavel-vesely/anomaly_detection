@@ -22,10 +22,10 @@ public class TutorialHandler extends DefaultHandler {
                              Attributes atts) throws SAXException {
         content = new StringBuilder();
         System.out.println("start:" + qName);
-        if (qName.equalsIgnoreCase("company")) {
+        if (qName.equalsIgnoreCase("tokens")) {
             tokens.clear();
 
-        } else if (qName.equalsIgnoreCase("staff")) {
+        } else if (qName.equalsIgnoreCase("token")) {
             token = new NLPToken();
             System.out.println(token.toString());
         }
@@ -33,22 +33,19 @@ public class TutorialHandler extends DefaultHandler {
 
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-        System.out.println("end:" + qName);
-        if (qName.equalsIgnoreCase("firstname")) {
+        System.out.println("end:" + qName + ": " + content.toString());
+        if (qName.equalsIgnoreCase("word")) {
             token.setWord(content.toString());
-        } else if (qName.equalsIgnoreCase("lastname")) {
+        } else if (qName.equalsIgnoreCase("lemma")) {
             token.setLemma(content.toString());
-        } else if (qName.equalsIgnoreCase("nickname")) {
+        } else if (qName.equalsIgnoreCase("pos")) {
             token.setPOS(content.toString());
-        } else if (qName.equalsIgnoreCase("salary")) {
-            token.setCharacters(Integer.getInteger(content.toString()));
 
-        } else if (qName.equalsIgnoreCase("staff")) {
-            System.out.println("Ends Token:inCase");
+        } else if (qName.equalsIgnoreCase("token")) {
             System.out.println(token.toString());
             tokens.add(token);
 
-        } else if (qName.equalsIgnoreCase("company")) {
+        } else if (qName.equalsIgnoreCase("tokens")) {
             String listString = tokens.stream().map(Object::toString)
                     .collect(Collectors.joining(", "));
             System.out.println(listString);

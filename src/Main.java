@@ -18,7 +18,7 @@ public class Main {
                 System.getProperty("user.dir"));
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
-            InputStream xmlInput = new FileInputStream("src\\tutorial.xml");
+            InputStream xmlInput = new FileInputStream("src\\mini.xml");
 
             SAXParser saxParser = factory.newSAXParser();
             TutorialHandler handler = new TutorialHandler();
