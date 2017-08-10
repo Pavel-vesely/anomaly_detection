@@ -1,15 +1,13 @@
-import java.io.Serializable;
+public class InputToken {
+    private String word = "";
+    private String lemma = "";
+    private Integer characters = 0;
+    private Integer syllables = 0;
+    private String POS = "";
 
-public class NLPToken implements Serializable {
-    protected String word = "";
-    protected String lemma = "";
-    protected Integer characters = 0;
-    protected Integer syllables = 0;
-    protected String POS = "";
+    public InputToken(){}
 
-    public NLPToken(){}
-
-    public NLPToken(String word, String lemma, Integer characters, Integer syllables, String POS){
+    public InputToken(String word, String lemma, Integer characters, Integer syllables, String POS){
         this.word = word;
         this.lemma = lemma;
         this.characters = characters;
@@ -58,12 +56,13 @@ public class NLPToken implements Serializable {
     }
 
     public String toString() {
-        return "{'ADWord': {" +
-                "'word': '" + word + "'," +
-                "'lemma':" + lemma + "'," +
-                "'characters': " + characters.toString() + "," +
-                "'syllables': " + syllables.toString() + "," +
-                "'POS': '" + POS + "'" +
+        return "{\"InputToken\": {" +
+                "\"word\": \"" + word + "\"," +
+                "\"lemma\": \"" + lemma + "\"," +
+                "\"characters\": " + characters.toString() + "," +
+                "\"syllables\": " + syllables.toString() + "," +
+                "\"POS\": \"" + POS + "\"" +
                 "}}";
     }
 }
+

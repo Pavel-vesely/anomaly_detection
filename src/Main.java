@@ -1,12 +1,6 @@
-import eu.crydee.syllablecounter.SyllableCounter;
-
-
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
 
 public class Main {
 
@@ -21,7 +15,7 @@ public class Main {
             InputStream xmlInput = new FileInputStream("src\\mini.xml");
 
             SAXParser saxParser = factory.newSAXParser();
-            TutorialHandler handler = new TutorialHandler();
+            StanfordNLPSaxHandler handler = new StanfordNLPSaxHandler();
             saxParser.parse(xmlInput, handler);
         } catch (Exception e) {
             e.printStackTrace();

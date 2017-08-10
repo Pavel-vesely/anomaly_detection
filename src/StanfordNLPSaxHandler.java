@@ -1,32 +1,40 @@
+import eu.crydee.syllablecounter.SyllableCounter;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
-public class TutorialHandler extends DefaultHandler {
+public class StanfordNLPSaxHandler extends DefaultHandler {
 
-    private ArrayList<NLPToken> tokens;
-    private NLPToken token;
+    private ADSentence adSentence;
+    private InputSentence inSentence;
+    private ArrayList<InputToken> tokens;
+    private InputToken token;
+    private SyllableCounter counter;
 
     private StringBuilder content;
+    private String word;
 
-    public TutorialHandler() {
-        tokens = new ArrayList<NLPToken>();
+    public StanfordNLPSaxHandler() {
+        tokens = new ArrayList<InputToken>();
         content = new StringBuilder();
-
+        counter = new SyllableCounter();
     }
 
     public void startElement(String uri, String localName, String qName,
                              Attributes atts) throws SAXException {
         content = new StringBuilder();
         System.out.println("start:" + qName);
-        if (qName.equalsIgnoreCase("tokens")) {
+        if (qName.equalsIgnoreCase("sentence")) {
+            inSentence = new InputSentence();
+            if (atts.getValue("id") != null) {
+                inSentence.setId(Integer.valueOf(atts.getValue("id")));
+            }
+        } else if (qName.equalsIgnoreCase("tokens")) {
             tokens.clear();
-
         } else if (qName.equalsIgnoreCase("token")) {
-            token = new NLPToken();
+            token = new InputToken();
             System.out.println(token.toString());
         }
     }
@@ -35,7 +43,10 @@ public class TutorialHandler extends DefaultHandler {
             throws SAXException {
         System.out.println("end:" + qName + ": " + content.toString());
         if (qName.equalsIgnoreCase("word")) {
-            token.setWord(content.toString());
+            word = content.toString();
+            token.setWord(word);
+            token.setCharacters(word.length());
+            token.setSyllables(counter.count(word));
         } else if (qName.equalsIgnoreCase("lemma")) {
             token.setLemma(content.toString());
         } else if (qName.equalsIgnoreCase("pos")) {
@@ -45,10 +56,11 @@ public class TutorialHandler extends DefaultHandler {
             System.out.println(token.toString());
             tokens.add(token);
 
-        } else if (qName.equalsIgnoreCase("tokens")) {
-            String listString = tokens.stream().map(Object::toString)
-                    .collect(Collectors.joining(", "));
-            System.out.println(listString);
+        } else if (qName.equalsIgnoreCase("sentence")) {
+            inSentence.setTokens(tokens);
+            System.out.println(inSentence.toString());
+            adSentence = new ADSentence(inSentence, counter);
+            System.out.println(adSentence.toString());
         }
     }
 
