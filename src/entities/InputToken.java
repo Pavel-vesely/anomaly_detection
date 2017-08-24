@@ -1,3 +1,5 @@
+package entities;
+
 public class InputToken {
     private String word = "";
     private String lemma = "";
@@ -63,6 +65,10 @@ public class InputToken {
                 "\"syllables\": " + syllables.toString() + "," +
                 "\"POS\": \"" + POS + "\"" +
                 "}}";
+    }
+
+    public String toJSON() {
+        return this.toString();
     }
 }
 
