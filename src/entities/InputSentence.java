@@ -11,11 +11,13 @@ public class InputSentence {
     private Integer sentiment = 3;
     private ArrayList<InputToken> tokens = new ArrayList<InputToken>();
 
-    public InputSentence() {}
+    public InputSentence() {
+    }
 
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -23,6 +25,7 @@ public class InputSentence {
     public Integer getSentiment() {
         return sentiment;
     }
+
     public void setSentiment(Integer sentiment) {
         this.sentiment = sentiment;
     }
@@ -38,6 +41,7 @@ public class InputSentence {
     public ArrayList<InputToken> getTokens() {
         return tokens;
     }
+
     public void setTokens(ArrayList<InputToken> tokens) {
         this.tokens = tokens;
     }

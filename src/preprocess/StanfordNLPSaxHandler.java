@@ -1,7 +1,6 @@
 package preprocess;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-import entities.ADSentence;
+import entities.ADSentenceBlock;
 import entities.InputSentence;
 import entities.InputToken;
 import eu.crydee.syllablecounter.SyllableCounter;
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 
 public class StanfordNLPSaxHandler extends DefaultHandler {
 
-    private ADSentence adSentence;
+    private ADSentenceBlock adSentenceBlock;
     private InputSentence inSentence;
     private ArrayList<InputToken> tokens;
     private InputToken token;
@@ -24,18 +23,21 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
     private StringBuilder content;
     private String word;
 
+    private ADSentenceBlock sumADSB;
+
     public StanfordNLPSaxHandler(String header) {
         tokens = new ArrayList<InputToken>();
         content = new StringBuilder();
         counter = new SyllableCounter();
         this.header = header;
-        System.out.println(ADSentence.getCSVHeader());
+        System.out.println(ADSentenceBlock.getCSVHeader());
+
+        sumADSB = new ADSentenceBlock(0, "Sum");
     }
 
     public void startElement(String uri, String localName, String qName,
                              Attributes atts) throws SAXException {
         content = new StringBuilder();
-//        System.out.println("start:" + qName);
         if (qName.equalsIgnoreCase("sentence")) {
             inSentence = new InputSentence();
             passive = false;
@@ -49,7 +51,6 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
             tokens.clear();
         } else if (qName.equalsIgnoreCase("token")) {
             token = new InputToken();
-//            System.out.println(token.toString());
         } else if (qName.equalsIgnoreCase("dep")) {
             if (atts.getValue("type").equalsIgnoreCase("nsubjpass")) {
                 passive = true;
@@ -59,7 +60,6 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
 
     public void endElement(String uri, String localName, String qName)
             throws SAXException {
-//        System.out.println("end:" + qName + ": " + content.toString());
         if (qName.equalsIgnoreCase("word")) {
             word = content.toString();
             token.setWord(word);
@@ -71,7 +71,6 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
             token.setPOS(content.toString());
 
         } else if (qName.equalsIgnoreCase("token")) {
-//            System.out.println(token.toString());
             tokens.add(token);
 
         } else if (qName.equalsIgnoreCase("sentence")) {
@@ -79,9 +78,9 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
                 inSentence.setPassive(true);
             }
             inSentence.setTokens(tokens);
-//            System.out.println(inSentence.toString());
-            adSentence = new ADSentence(inSentence, counter, header);
-            System.out.println(adSentence.toCSVLine());
+            adSentenceBlock = new ADSentenceBlock(inSentence, header);
+            System.out.println(adSentenceBlock.toCSVLine());
+            sumADSB.increase(adSentenceBlock);
         }
     }
 
@@ -93,9 +92,8 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
     public void endDocument() throws SAXException {
         // you can do something here for example send
         // the Channel object somewhere or whatever.
+        System.out.println(sumADSB.toCSVLine());
     }
-
-
 }
 
 

@@ -1,5 +1,7 @@
 package preprocess;
 
+import entities.ADSentenceBlock;
+
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
@@ -7,11 +9,6 @@ import java.io.*;
 public class Main {
 
     public static void main(String[] args) {
-//        SyllableCounter counter = new SyllableCounter();
-//        System.out.println(parseWord(counter, "fridge").toString());
-        String pathname = "src\\tutorial.xml";
-        System.out.println("Working Directory = " +
-                System.getProperty("user.dir"));
         SAXParserFactory factory = SAXParserFactory.newInstance();
         try {
             InputStream xmlInput = new FileInputStream("resources\\mini.xml");
@@ -23,9 +20,9 @@ public class Main {
             e.printStackTrace();
         }
 
-//        for (Integer i = 0; i < PosTags.getPosTags().length; i++) {
-//            System.out.println("aMap.put(\""+ PosTags.getPosTags()[i]+"\", " + i.toString() + ");");
-//        }
+        ADSentenceBlock remade = new ADSentenceBlock("\"mini.xml\",1,1,43,116,39,0,1,35,0,3,0,1,1, 0, 0, 0, 0,0, 1, 1, 0, 0, 4, 0, 1, 3, 1, 0, 0, 0, 0, 4, 1, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 12, 0, 4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5, 0, 0, 0, 0, 0");
+        System.out.println(remade.toCSVLine());
+
     }
 }
 
