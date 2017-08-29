@@ -4,23 +4,23 @@ import java.util.Arrays;
 
 public class ADSentenceBlock {
     private String header;
-    private Integer id;
-    private Integer sentences = 0;
-    private Integer words = 0;
-    private Integer chars = 0;
-    private Integer syllables = 0;
-    private Integer shortSentences = 0;
-    private Integer longSentences = 0;
-    private Integer shortWords = 0; //1 syllable
-    private Integer longWords = 0; //3+ syllables
-    private Integer sixCharWords = 0; //6+ chars
-    private Integer passive = 0;
-    private Integer questions = 0;
-    private Integer[] sentimentArray = new Integer[5];
-    private Integer[] posArray = new Integer[PosTags.getPosTagsLenght()];
+    private int id;
+    private int sentences = 0;
+    private int words = 0;
+    private int chars = 0;
+    private int syllables = 0;
+    private int shortSentences = 0;
+    private int longSentences = 0;
+    private int shortWords = 0; //1 syllable
+    private int longWords = 0; //3+ syllables
+    private int sixCharWords = 0; //6+ chars
+    private int passive = 0;
+    private int questions = 0;
+    private int[] sentimentArray = new int[5];
+    private int[] posArray = new int[PosTags.getPosTagsLenght()];
 
 
-    public ADSentenceBlock(Integer id, String header) {
+    public ADSentenceBlock(int id, String header) {
         Arrays.fill(sentimentArray, 0);
         Arrays.fill(posArray, 0);
         this.header = header;
@@ -37,7 +37,7 @@ public class ADSentenceBlock {
             this.passive = 1;
         }
         this.sentimentArray[inSentence.getSentiment() - 1]++;
-        Integer syllables;
+        int syllables;
         for (InputToken token : inSentence.getTokens()) {
             words++;
             chars += token.getCharacters();
@@ -64,23 +64,23 @@ public class ADSentenceBlock {
     public ADSentenceBlock(String sourceCSVLine) {
         String[] brokenLine = sourceCSVLine.replace(" ", "").split(",");
         header = brokenLine[0].replaceAll("\"", "");
-        id = Integer.valueOf(brokenLine[1]);
-        sentences = Integer.valueOf(brokenLine[2]);
-        words = Integer.valueOf(brokenLine[3]);
-        chars = Integer.valueOf(brokenLine[4]);
-        syllables = Integer.valueOf(brokenLine[5]);
-        shortSentences = Integer.valueOf(brokenLine[6]);
-        longSentences = Integer.valueOf(brokenLine[7]);
-        shortWords = Integer.valueOf(brokenLine[8]); //1 syllable
-        longWords = Integer.valueOf(brokenLine[9]); //3+ syllables
-        sixCharWords = Integer.valueOf(brokenLine[10]); //6+ chars
-        passive = Integer.valueOf(brokenLine[11]);
-        questions = Integer.valueOf(brokenLine[12]);
+        id = Integer.parseInt(brokenLine[1]);
+        sentences = Integer.parseInt(brokenLine[2]);
+        words = Integer.parseInt(brokenLine[3]);
+        chars = Integer.parseInt(brokenLine[4]);
+        syllables = Integer.parseInt(brokenLine[5]);
+        shortSentences = Integer.parseInt(brokenLine[6]);
+        longSentences = Integer.parseInt(brokenLine[7]);
+        shortWords = Integer.parseInt(brokenLine[8]); //1 syllable
+        longWords = Integer.parseInt(brokenLine[9]); //3+ syllables
+        sixCharWords = Integer.parseInt(brokenLine[10]); //6+ chars
+        passive = Integer.parseInt(brokenLine[11]);
+        questions = Integer.parseInt(brokenLine[12]);
         for (int i = 0; i < sentimentArray.length; i++) {
-            sentimentArray[i] = Integer.valueOf(brokenLine[13 + i]);
+            sentimentArray[i] = Integer.parseInt(brokenLine[13 + i]);
         }
         for (int i = 0; i < posArray.length; i++) {
-            posArray[i] = Integer.valueOf(brokenLine[18 + i]);
+            posArray[i] = Integer.parseInt(brokenLine[18 + i]);
         }
     }
 
@@ -130,18 +130,18 @@ public class ADSentenceBlock {
     public String toString() {
         return "{\"ADSentenceBlock\": {" +
                 "\"header\": " + header + "," +
-                "\"id\": " + id.toString() + "," +
-                "\"sentences\": " + sentences.toString() + "," +
-                "\"words\": " + words.toString() + "," +
-                "\"chars\": " + chars.toString() + "," +
-                "\"syllables\": " + syllables.toString() + "," +
-                "\"shortSentences\": " + shortSentences.toString() + "," +
-                "\"longSentences\": " + longSentences.toString() + "," +
-                "\"shortWords\": " + shortWords.toString() + "," +
-                "\"longWords\": " + longWords.toString() + "," +
-                "\"sixCharWords\": " + sixCharWords.toString() + "," +
-                "\"passive\": " + passive.toString() + "," +
-                "\"questions\": " + questions.toString() + "," +
+                "\"id\": " + Integer.toString(id) + "," +
+                "\"sentences\": " + Integer.toString(sentences) + "," +
+                "\"words\": " + Integer.toString(words) + "," +
+                "\"chars\": " + Integer.toString(chars) + "," +
+                "\"syllables\": " + Integer.toString(syllables) + "," +
+                "\"shortSentences\": " + Integer.toString(shortSentences) + "," +
+                "\"longSentences\": " + Integer.toString(longSentences) + "," +
+                "\"shortWords\": " + Integer.toString(shortWords) + "," +
+                "\"longWords\": " + Integer.toString(longWords) + "," +
+                "\"sixCharWords\": " + Integer.toString(sixCharWords) + "," +
+                "\"passive\": " + Integer.toString(passive) + "," +
+                "\"questions\": " + Integer.toString(questions) + "," +
                 "\"sentimentArray\": " + Arrays.toString(sentimentArray) + "," +
                 "\"posArray\": " + Arrays.toString(posArray) +
                 "}}";
@@ -153,18 +153,18 @@ public class ADSentenceBlock {
 
     public String toCSVLine() {
         return "\"" + header + "\"," +
-                id.toString() + "," +
-                sentences.toString() + "," +
-                words.toString() + "," +
-                chars.toString() + "," +
-                syllables.toString() + "," +
-                shortSentences.toString() + "," +
-                longSentences.toString() + "," +
-                shortWords.toString() + "," +
-                longWords.toString() + "," +
-                sixCharWords.toString() + "," +
-                passive.toString() + "," +
-                questions.toString() + "," +
+                Integer.toString(id) + "," +
+                Integer.toString(sentences) + "," +
+                Integer.toString(words) + "," +
+                Integer.toString(chars) + "," +
+                Integer.toString(syllables) + "," +
+                Integer.toString(shortSentences) + "," +
+                Integer.toString(longSentences) + "," +
+                Integer.toString(shortWords) + "," +
+                Integer.toString(longWords) + "," +
+                Integer.toString(sixCharWords) + "," +
+                Integer.toString(passive) + "," +
+                Integer.toString(questions) + "," +
                 Arrays.toString(sentimentArray).replace("[", "").replace("]", "") + "," +
                 Arrays.toString(posArray).replace("[", "").replace("]", "");
     }
@@ -178,5 +178,64 @@ public class ADSentenceBlock {
         posTagString = posTagString.substring(0, posTagString.length() - 1);
         return "header, id, sentences, words, chars, syllables, shortSentences, longSentences, shortWords, longWords," +
                 " sixCharWords, passive, questions, sentiment1, sentiment2, sentiment3, sentiment4, sentiment5, " + posTagString;
+    }
+
+        public String getHeader() {
+        return header;
+    }
+    public int getId() {
+        return id;
+    }
+
+    public int getSentences() {
+        return sentences;
+    }
+
+    public int getWords() {
+        return words;
+    }
+
+    public int getChars() {
+        return chars;
+    }
+
+    public int getSyllables() {
+        return syllables;
+    }
+
+    public int getShortSentences() {
+        return shortSentences;
+    }
+
+    public int getLongSentences() {
+        return longSentences;
+    }
+
+    public int getShortWords() {
+        return shortWords;
+    }
+
+    public int getLongWords() {
+        return longWords;
+    }
+
+    public int getSixCharWords() {
+        return sixCharWords;
+    }
+
+    public int getPassive() {
+        return passive;
+    }
+
+    public int getQuestions() {
+        return questions;
+    }
+
+    public int[] getSentimentArray() {
+        return sentimentArray;
+    }
+
+    public int[] getPosArray() {
+        return posArray;
     }
 }

@@ -1,32 +1,30 @@
 package entities;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class InputSentence {
-    private Integer id = 0;
+    private int id = 0;
     private Boolean passive = false;
-    private Integer sentiment = 3;
+    private int sentiment = 3;
     private ArrayList<InputToken> tokens = new ArrayList<InputToken>();
 
     public InputSentence() {
     }
 
-    public Integer getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(int id) {
         this.id = id;
     }
 
-    public Integer getSentiment() {
+    public int getSentiment() {
         return sentiment;
     }
 
-    public void setSentiment(Integer sentiment) {
+    public void setSentiment(int sentiment) {
         this.sentiment = sentiment;
     }
 
@@ -49,9 +47,9 @@ public class InputSentence {
     public String toString() {
         String tokenString = tokens.stream().map(Object::toString).collect(Collectors.joining(", "));
         return "{\"InputSentence\": {" +
-                "\"id\": " + id.toString() + "," +
+                "\"id\": " + Integer.toString(id) + "," +
                 "\"passive\": " + passive.toString() + "," +
-                "\"sentiment\": " + sentiment.toString() + "," +
+                "\"sentiment\": " + Integer.toString(sentiment) + "," +
                 "\"tokens\": [" + tokenString + "]" +
                 "}}";
     }
