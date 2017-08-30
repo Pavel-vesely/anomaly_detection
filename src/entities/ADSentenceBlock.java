@@ -61,7 +61,7 @@ public class ADSentenceBlock {
         longSentences = (words > 15) ? 1 : 0;
     }
 
-    public ADSentenceBlock(String sourceCSVLine) {
+    public void loadCSVLine(String sourceCSVLine) {
         String[] brokenLine = sourceCSVLine.replace(" ", "").split(",");
         header = brokenLine[0].replaceAll("\"", "");
         id = Integer.parseInt(brokenLine[1]);
@@ -123,6 +123,22 @@ public class ADSentenceBlock {
         for (int i = 0; i < posArray.length; i++) {
             posArray[i] -= otherADSB.posArray[i];
         }
+    }
+
+    public void replace(ADSentenceBlock otherADSB) {
+        sentences = otherADSB.sentences;
+        words = otherADSB.words;
+        chars = otherADSB.chars;
+        syllables = otherADSB.syllables;
+        shortSentences = otherADSB.shortSentences;
+        longSentences = otherADSB.longSentences;
+        shortWords = otherADSB.shortWords;
+        longWords = otherADSB.longWords;
+        sixCharWords = otherADSB.sixCharWords;
+        passive = otherADSB.passive;
+        questions = otherADSB.questions;
+        System.arraycopy(otherADSB.sentimentArray, 0, sentimentArray, 0, sentimentArray.length);
+        System.arraycopy(otherADSB.posArray, 0, posArray, 0, posArray.length);
     }
 
 
@@ -237,5 +253,13 @@ public class ADSentenceBlock {
 
     public int[] getPosArray() {
         return posArray;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

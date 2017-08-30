@@ -68,8 +68,27 @@ public class ADVector {
                 Arrays.toString(computeVector).replace("[", "").replace("]", "");
     }
 
+    public String differenceToCSVLine(ADVector other) {
+        String resultString = "\"" + header + "\"," +
+                Integer.toString(id) + "," +
+                Boolean.toString(complement);
+        double[] otherVector = other.getComputeVector();
+        double distance = 0.0;
+        for (int i = 0; i < VECTOR_LEN; i++) {
+            distance += Math.abs(this.computeVector[i] - otherVector[i]);
+            resultString += "," + Double.toString(Math.abs(this.computeVector[i] - otherVector[i]));
+        }
+        resultString += "," + Double.toString(distance);
+        return resultString;
+    }
+
     public double[] getComputeVector() {
         return computeVector;
+    }
+
+    public static String getCSVHeader() {
+        //TODO
+        return "";
     }
 }
 

@@ -79,7 +79,7 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
             }
             inSentence.setTokens(tokens);
             adSentenceBlock = new ADSentenceBlock(inSentence, header);
-            System.out.println(adSentenceBlock.toCSVLine());
+            //System.out.println(adSentenceBlock.toCSVLine());
             sumADSB.increase(adSentenceBlock);
         }
     }
