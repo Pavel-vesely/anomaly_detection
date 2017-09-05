@@ -10,7 +10,7 @@ public class PosTags {
             "LS", "MD", "NN", "NNP", "NNPS", "NNS", "PDT", "POS",
             "PRP", "PRP$", "RB", "RBR", "RBS", "RP", "SYM", "TO",
             "UH", "VB", "VBD", "VBG", "VBN", "VBP", "VBZ", "WDT",
-            "WP", "WP$", "WRB"};
+            "WP", "WP$", "WRB", "#"};
 
     private static Map<String, Integer> posTypesMap;
 
@@ -61,6 +61,7 @@ public class PosTags {
         aMap.put("WP", 42);
         aMap.put("WP$", 43);
         aMap.put("WRB", 44);
+        aMap.put("#", 45);
         posTypesMap = Collections.unmodifiableMap(aMap);
     }
 
@@ -75,4 +76,14 @@ public class PosTags {
     public static Integer getPosIndex(String posTag) {
         return posTypesMap.get(posTag);
     }
+
+    public static String getCSVHeaderString() {
+        String posTagString = "";
+        for (String tag : posTags) {
+            posTagString += "\"" + tag + "\", ";
+        }
+        posTagString = posTagString.substring(0, posTagString.length() - 1);
+        return posTagString;
+    }
+
 }

@@ -1,5 +1,6 @@
 package preprocess;
 
+import com.sun.xml.internal.ws.api.message.ExceptionHasMessage;
 import entities.ADSentenceBlock;
 import entities.InputSentence;
 import entities.InputToken;
@@ -8,6 +9,9 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class StanfordNLPSaxHandler extends DefaultHandler {
@@ -18,21 +22,28 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
     private InputToken token;
     private SyllableCounter counter;
     private String header;
-    private Boolean passive;
+    private boolean passive;
 
     private StringBuilder content;
     private String word;
+    private BufferedWriter outBw;
 
     private ADSentenceBlock sumADSB;
 
-    public StanfordNLPSaxHandler(String header) {
+    public StanfordNLPSaxHandler(String header, String outFilePath) throws IOException {
         tokens = new ArrayList<InputToken>();
         content = new StringBuilder();
         counter = new SyllableCounter();
         this.header = header;
-        System.out.println(ADSentenceBlock.getCSVHeader());
 
-        sumADSB = new ADSentenceBlock(0, "Sum");
+        outBw = new BufferedWriter(new FileWriter(outFilePath));
+
+        try {
+            outBw.write(ADSentenceBlock.getCSVHeader());
+            outBw.newLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void startElement(String uri, String localName, String qName,
@@ -65,10 +76,13 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
             token.setWord(word);
             token.setCharacters(word.length());
             token.setSyllables(counter.count(word));
+//            System.out.println("word: " + word);
         } else if (qName.equalsIgnoreCase("lemma")) {
             token.setLemma(content.toString());
         } else if (qName.equalsIgnoreCase("pos")) {
             token.setPOS(content.toString());
+
+//            System.out.println("pos: " + content.toString());
 
         } else if (qName.equalsIgnoreCase("token")) {
             tokens.add(token);
@@ -79,8 +93,14 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
             }
             inSentence.setTokens(tokens);
             adSentenceBlock = new ADSentenceBlock(inSentence, header);
-            //System.out.println(adSentenceBlock.toCSVLine());
-            sumADSB.increase(adSentenceBlock);
+            try {
+                outBw.write(adSentenceBlock.toCSVLine());
+                outBw.newLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+//            System.out.println("Sentence: " + Integer.toString(inSentence.getId()));
+            //sumADSB.increase(adSentenceBlock);
         }
     }
 
@@ -92,7 +112,12 @@ public class StanfordNLPSaxHandler extends DefaultHandler {
     public void endDocument() throws SAXException {
         // you can do something here for example send
         // the Channel object somewhere or whatever.
-        System.out.println(sumADSB.toCSVLine());
+//        System.out.println(sumADSB.toCSVLine());
+        try {
+            outBw.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
 

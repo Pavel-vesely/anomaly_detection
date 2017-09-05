@@ -4,15 +4,15 @@ import com.sun.xml.internal.ws.api.message.ExceptionHasMessage;
 import entities.ADSentenceBlock;
 import entities.ADVector;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class SlidingWindow {
 
-    public static void slidingWindow(String srcFilePath, int windowSize, ADSentenceBlock sumBlock) {
+    public static void slidingWindow(String srcFilePath, String outVectorsFilePath, String outDistancesFilePath, int windowSize, ADSentenceBlock sumBlock, double[][] normVector) throws IOException {
         System.out.println(sumBlock.toCSVLine());
         ADSentenceBlock windowBlock = new ADSentenceBlock(-1, "");
         ADSentenceBlock lineBlock = new ADSentenceBlock(-1, "");
@@ -21,10 +21,18 @@ public class SlidingWindow {
 
         System.out.println(ADVector.getCSVHeader());
 
-        try (BufferedReader br = new BufferedReader(new FileReader(srcFilePath))) {
+        try (
+                BufferedReader br = new BufferedReader(new FileReader(srcFilePath));
+                BufferedWriter vectorBw = new BufferedWriter(new FileWriter(outVectorsFilePath));
+                BufferedWriter distanceBw = new BufferedWriter(new FileWriter(outDistancesFilePath))
+        ) {
             String line;
             for (windowPointer = 0; windowPointer < windowSize; windowPointer++) {
                 if ((line = br.readLine()) != null) {
+                    if (line.equals(ADSentenceBlock.getCSVHeader())) {
+                        windowPointer--;
+                        continue;
+                    }
                     window[windowPointer] = new ADSentenceBlock(-1, "");
                     window[windowPointer].loadCSVLine(line);
                     windowBlock.increase(window[windowPointer]);
@@ -37,8 +45,21 @@ public class SlidingWindow {
             windowBlock.setHeader(window[0].getHeader());
             windowBlock.setId(window[0].getId());
 
-            //measureAndWrite(windowBlock, sumBlock);
-            System.out.println(windowBlock.toCSVLine());
+            vectorBw.write(ADVector.getCSVHeader());
+            vectorBw.newLine();
+            distanceBw.write(ADVector.getCSVHeader() + ", distance");
+            distanceBw.newLine();
+
+            ADVector windowVector = new ADVector(windowBlock);
+            ADVector sumVector = new ADVector(sumBlock);
+            windowVector.normalize(normVector); //normalize
+            sumVector.normalize(normVector);
+
+            vectorBw.write(windowVector.toCSVLine());
+            vectorBw.newLine();
+            distanceBw.write(windowVector.differenceToCSVLine(sumVector));
+            distanceBw.newLine();
+
 
             while ((line = br.readLine()) != null) {
                 windowBlock.decrease(window[windowPointer]);
@@ -52,8 +73,16 @@ public class SlidingWindow {
                 sumBlock.decrease(window[windowPointer]);
 
                 windowPointer = (windowPointer + 1) % windowSize;
-                //measureAndWrite(windowBlock, sumBlock);
-                System.out.println(windowBlock.toCSVLine());
+
+                windowVector.loadSentenceBlock(windowBlock);
+                sumVector.loadSentenceBlock(sumBlock);
+                windowVector.normalize(normVector); //normalize
+                sumVector.normalize(normVector);
+
+                vectorBw.write(windowVector.toCSVLine());
+                vectorBw.newLine();
+                distanceBw.write(windowVector.differenceToCSVLine(sumVector));
+                distanceBw.newLine();
             }
 
             for (windowPointer = 0; windowPointer < windowSize; windowPointer++) {
@@ -61,16 +90,10 @@ public class SlidingWindow {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new IOException();
         }
     }
 
-    private static void measureAndWrite(ADSentenceBlock windowBlock, ADSentenceBlock sumBlock) {
-        ADVector windowVector = new ADVector(windowBlock, false);
-        ADVector sumVector = new ADVector(sumBlock, true);
-//        double distance = windowVector.manhattanDistanceTo(sumVector);
-        System.out.println(windowVector.differenceToCSVLine(sumVector));
-//        System.out.println(sumVector.toCSVLine() + ", 0");
-    }
 
     public static ADSentenceBlock getSum(String srcFilePath) {
         ADSentenceBlock sum = new ADSentenceBlock(0, "sum");
@@ -78,6 +101,9 @@ public class SlidingWindow {
         try (BufferedReader br = new BufferedReader(new FileReader(srcFilePath))) {
             String line;
             while ((line = br.readLine()) != null) {
+                if (line.equals(ADSentenceBlock.getCSVHeader())) {
+                    continue;
+                }
                 lineBlock.loadCSVLine(line);
                 sum.increase(lineBlock);
             }
@@ -85,5 +111,37 @@ public class SlidingWindow {
             e.printStackTrace();
         }
         return sum;
+    }
+
+    public static double[][] getNormVectors(String srcFilePath) {
+        ADSentenceBlock lineBlock = new ADSentenceBlock(-1, "");
+        ADVector adVector = new ADVector();
+        double[] mins = new double[ADVector.VECTOR_LEN];
+        double[] maxes = new double[ADVector.VECTOR_LEN];
+        Arrays.fill(mins, Double.MAX_VALUE);
+        Arrays.fill(maxes, Double.MIN_VALUE);
+        double[] vector;
+        try (BufferedReader br = new BufferedReader(new FileReader(srcFilePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.equals(ADSentenceBlock.getCSVHeader())) {
+                    continue;
+                }
+                lineBlock.loadCSVLine(line);
+                adVector.loadSentenceBlock(lineBlock);
+                vector = adVector.getComputeVector();
+                for (int i = 0; i < ADVector.VECTOR_LEN; i++) {
+                    mins[i] = vector[i] < mins[i] ? vector[i] : mins[i];
+                    maxes[i] = vector[i] > maxes[i] ? vector[i] : maxes[i];
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        double[] dispersions = new double[ADVector.VECTOR_LEN];
+        for (int i = 0; i < ADVector.VECTOR_LEN; i++) {
+            dispersions[i] = maxes[i] - mins[i];
+        }
+        return new double[][]{mins, dispersions};
     }
 }

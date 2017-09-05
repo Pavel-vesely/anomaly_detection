@@ -18,6 +18,9 @@ public class ADSentenceBlock {
     private int questions = 0;
     private int[] sentimentArray = new int[5];
     private int[] posArray = new int[PosTags.getPosTagsLenght()];
+    private int startsWithCCorIN = 0;
+    private String firstSentence = "";
+
 
 
     public ADSentenceBlock(int id, String header) {
@@ -30,14 +33,16 @@ public class ADSentenceBlock {
     public ADSentenceBlock(InputSentence inSentence, String header) {
         Arrays.fill(sentimentArray, 0);
         Arrays.fill(posArray, 0);
+        boolean starting = true;
         this.header = header;
         this.id = inSentence.getId();
         sentences = 1;
         if (inSentence.getPassive()) {
             this.passive = 1;
         }
-        this.sentimentArray[inSentence.getSentiment() - 1]++;
+        this.sentimentArray[inSentence.getSentiment()]++;
         int syllables;
+        int pos;
         for (InputToken token : inSentence.getTokens()) {
             words++;
             chars += token.getCharacters();
@@ -55,10 +60,19 @@ public class ADSentenceBlock {
             if (token.getPOS().equals(".") && token.getLemma().equals("?")) {
                 questions = 1;
             }
-            posArray[PosTags.getPosIndex(token.getPOS())]++;
+            pos = PosTags.getPosIndex(token.getPOS());
+            posArray[pos]++;
+            if (starting && pos > 8) {
+                if (pos == 9 || pos == 14) {
+                    startsWithCCorIN = 1;
+                }
+                starting = false;
+            }
+            firstSentence += token.getWord() + " ";
         }
         shortSentences = (words < 8) ? 1 : 0;
         longSentences = (words > 15) ? 1 : 0;
+        firstSentence = firstSentence.replaceAll("\"", "");
     }
 
     public void loadCSVLine(String sourceCSVLine) {
@@ -76,12 +90,14 @@ public class ADSentenceBlock {
         sixCharWords = Integer.parseInt(brokenLine[10]); //6+ chars
         passive = Integer.parseInt(brokenLine[11]);
         questions = Integer.parseInt(brokenLine[12]);
+        startsWithCCorIN = Integer.parseInt(brokenLine[13]);
         for (int i = 0; i < sentimentArray.length; i++) {
-            sentimentArray[i] = Integer.parseInt(brokenLine[13 + i]);
+            sentimentArray[i] = Integer.parseInt(brokenLine[14 + i]);
         }
         for (int i = 0; i < posArray.length; i++) {
-            posArray[i] = Integer.parseInt(brokenLine[18 + i]);
+            posArray[i] = Integer.parseInt(brokenLine[19 + i]);
         }
+        firstSentence = brokenLine[19 + PosTags.getPosTagsLenght()].replaceAll("\"", "");
     }
 
 
@@ -97,6 +113,7 @@ public class ADSentenceBlock {
         sixCharWords += otherADSB.sixCharWords;
         passive += otherADSB.passive;
         questions += otherADSB.questions;
+        startsWithCCorIN += otherADSB.startsWithCCorIN;
         for (int i = 0; i < sentimentArray.length; i++) {
             sentimentArray[i] += otherADSB.sentimentArray[i];
         }
@@ -117,6 +134,7 @@ public class ADSentenceBlock {
         sixCharWords -= otherADSB.sixCharWords;
         passive -= otherADSB.passive;
         questions -= otherADSB.questions;
+        startsWithCCorIN -= otherADSB.startsWithCCorIN;
         for (int i = 0; i < sentimentArray.length; i++) {
             sentimentArray[i] -= otherADSB.sentimentArray[i];
         }
@@ -137,8 +155,10 @@ public class ADSentenceBlock {
         sixCharWords = otherADSB.sixCharWords;
         passive = otherADSB.passive;
         questions = otherADSB.questions;
+        startsWithCCorIN = otherADSB.startsWithCCorIN;
         System.arraycopy(otherADSB.sentimentArray, 0, sentimentArray, 0, sentimentArray.length);
         System.arraycopy(otherADSB.posArray, 0, posArray, 0, posArray.length);
+        firstSentence = otherADSB.firstSentence;
     }
 
 
@@ -158,8 +178,10 @@ public class ADSentenceBlock {
                 "\"sixCharWords\": " + Integer.toString(sixCharWords) + "," +
                 "\"passive\": " + Integer.toString(passive) + "," +
                 "\"questions\": " + Integer.toString(questions) + "," +
+                "\"startsWithCCorIN\": " + Integer.toString(questions) + "," +
                 "\"sentimentArray\": " + Arrays.toString(sentimentArray) + "," +
                 "\"posArray\": " + Arrays.toString(posArray) +
+                "\"firstSentence\": " + firstSentence + "," +
                 "}}";
     }
 
@@ -181,19 +203,19 @@ public class ADSentenceBlock {
                 Integer.toString(sixCharWords) + "," +
                 Integer.toString(passive) + "," +
                 Integer.toString(questions) + "," +
+                Integer.toString(startsWithCCorIN) + "," +
                 Arrays.toString(sentimentArray).replace("[", "").replace("]", "") + "," +
-                Arrays.toString(posArray).replace("[", "").replace("]", "");
+                Arrays.toString(posArray).replace("[", "").replace("]", "") +
+                "\"" + firstSentence + "\"";
+
     }
 
 
     public static String getCSVHeader() {
-        String posTagString = "";
-        for (String tag : PosTags.getPosTags()) {
-            posTagString += "\"" + tag + "\", ";
-        }
-        posTagString = posTagString.substring(0, posTagString.length() - 1);
+
         return "header, id, sentences, words, chars, syllables, shortSentences, longSentences, shortWords, longWords," +
-                " sixCharWords, passive, questions, sentiment1, sentiment2, sentiment3, sentiment4, sentiment5, " + posTagString;
+                " sixCharWords, passive, questions, startsWithCCorIN, sentiment0, sentiment1, sentiment2, sentiment3, sentiment4, " +
+                PosTags.getCSVHeaderString() + ", firstSentence";
     }
 
         public String getHeader() {
@@ -247,12 +269,20 @@ public class ADSentenceBlock {
         return questions;
     }
 
+    public int getStartsWithCCorIN() {
+        return startsWithCCorIN;
+    }
+
     public int[] getSentimentArray() {
         return sentimentArray;
     }
 
     public int[] getPosArray() {
         return posArray;
+    }
+
+    public String getFirstSentence() {
+        return firstSentence;
     }
 
     public void setHeader(String header) {
