@@ -6,6 +6,7 @@ public class ADVector {
     public static final int VECTOR_LEN = 71;
     private String header;
     private int id;
+    private String text = "";
     private double[] computeVector = new double[VECTOR_LEN];
 
     public ADVector() {}
@@ -17,6 +18,7 @@ public class ADVector {
     public void loadSentenceBlock(ADSentenceBlock sBlock) {
         this.header = sBlock.getHeader();
         this.id = sBlock.getId();
+        this.text = sBlock.getFirstSentence();
         int[] posArray = sBlock.getPosArray();
         double sentences = (double) sBlock.getSentences();
         double words = (double) sBlock.getWords();
@@ -84,7 +86,8 @@ public class ADVector {
     public String toCSVLine() {
         return "\"" + header + "\"," +
                 Integer.toString(id) + "," +
-                Arrays.toString(computeVector).replace("[", "").replace("]", "");
+                Arrays.toString(computeVector).replace("[", "").replace("]", "") +
+                ",\" " + text + "\"";
     }
 
     public String differenceToCSVLine(ADVector other) {
@@ -96,6 +99,7 @@ public class ADVector {
             distance += Math.abs(this.computeVector[i] - otherVector[i]);
             resultString += "," + Double.toString(Math.abs(this.computeVector[i] - otherVector[i]));
         }
+        resultString += ",\" " + text + "\"";
         resultString += "," + Double.toString(distance);
         return resultString;
     }
@@ -108,7 +112,7 @@ public class ADVector {
         return "header, id, sentenceLength, wordLength, syllablesPerWord, shortSentences, longSentences, shortWords, longWords, " +
                 "sixCharWords, passive, questions, startsWithCCorIN, puncChars, :chars, commas," +
                 "Flesch-Kincaid Reading Ease, Flesch-Kincaid Grade Level, Gunning-Fog Index, Coleman-Liau Formula, Automated Readability Index, Lix Formula, SMOG index" +
-                "sentiment0, sentiment1, sentiment2, sentiment3, sentiment4, " + PosTags.getCSVHeaderString();
+                "sentiment0, sentiment1, sentiment2, sentiment3, sentiment4, " + PosTags.getCSVHeaderString() + ", text";
 
     }
 }

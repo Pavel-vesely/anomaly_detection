@@ -76,7 +76,11 @@ public class ADSentenceBlock {
     }
 
     public void loadCSVLine(String sourceCSVLine) {
-        String[] brokenLine = sourceCSVLine.replace(" ", "").split(",");
+        String[] brokenLine = sourceCSVLine.split(",");
+        //String[] brokenLine = sourceCSVLine.replace(" ", "").split(",");
+        for (int i = 0; i < 19 + PosTags.getPosTagsLenght(); i++) { //Keep " " in text
+            brokenLine[i] = brokenLine[i].replace(" ", "");
+        }
         header = brokenLine[0].replaceAll("\"", "");
         id = Integer.parseInt(brokenLine[1]);
         sentences = Integer.parseInt(brokenLine[2]);
@@ -205,7 +209,7 @@ public class ADSentenceBlock {
                 Integer.toString(questions) + "," +
                 Integer.toString(startsWithCCorIN) + "," +
                 Arrays.toString(sentimentArray).replace("[", "").replace("]", "") + "," +
-                Arrays.toString(posArray).replace("[", "").replace("]", "") +
+                Arrays.toString(posArray).replace("[", "").replace("]", "") + "," +
                 "\"" + firstSentence + "\"";
 
     }
@@ -291,5 +295,9 @@ public class ADSentenceBlock {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public void setFirstSentence(String firstSentence) {
+        this.firstSentence = firstSentence;
     }
 }

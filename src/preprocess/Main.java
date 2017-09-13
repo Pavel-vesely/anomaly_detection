@@ -15,12 +15,12 @@ import java.util.stream.Stream;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-//        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParserFactory factory = SAXParserFactory.newInstance();
 //        try {
-//            InputStream xmlInput = new FileInputStream("resources\\mini-shakespear.xml");// anarchist_cookbook shakespear
+//            InputStream xmlInput = new FileInputStream("resources\\micro-shakespear.xml");// anarchist_cookbook shakespear
 //
 //            SAXParser saxParser = factory.newSAXParser();
-//            StanfordNLPSaxHandler handler = new StanfordNLPSaxHandler("mini-shakespear.xml", "resources\\mini-shakespear-sblock.csv");
+//            StanfordNLPSaxHandler handler = new StanfordNLPSaxHandler("micro-shakespear.xml", "resources\\micro-shakespear-sblock.csv");
 //            saxParser.parse(xmlInput, handler);
 //        } catch (Exception e) {
 //            e.printStackTrace();
@@ -29,24 +29,24 @@ public class Main {
         long startTime = System.nanoTime();
 
 
-        double[][] normVectors = SlidingWindow.getNormVectors("resources\\mini-combo-sblock.csv");
+        double[][] normVectors = SlidingWindow.getNormVectors("resources\\micro-combo-sblock.csv");
         System.out.println("mins: " + Arrays.toString(normVectors[0]));
         System.out.println("divs: " + Arrays.toString(normVectors[1]));
 
-        ADSentenceBlock sum = SlidingWindow.getSum("resources\\mini-anarchist_in_shakespear-sblock.csv");
+        ADSentenceBlock sum = SlidingWindow.getSum("resources\\micro-anarchist_in_shakespear-sblock.csv");
         System.out.println("sum: " + sum.toCSVLine());
-        SlidingWindow.slidingWindow("resources\\mini-anarchist_in_shakespear-sblock.csv","resources\\mini-anarchist_in_shakespear-vector1.csv",
-                "resources\\mini-anarchist_in_shakespear-dist1.csv", 1, sum, normVectors);
-        SlidingWindow.slidingWindow("resources\\mini-anarchist_in_shakespear-sblock.csv","resources\\mini-anarchist_in_shakespear-vector10.csv",
-                "resources\\mini-anarchist_in_shakespear-dist10.csv", 10, sum, normVectors);
+        SlidingWindow.slidingWindow("resources\\micro-anarchist_in_shakespear-sblock.csv","resources\\micro-anarchist_in_shakespear-vector1.csv",
+                "resources\\micro-anarchist_in_shakespear-dist1.csv", 1, sum, normVectors);
+        SlidingWindow.slidingWindow("resources\\micro-anarchist_in_shakespear-sblock.csv","resources\\micro-anarchist_in_shakespear-vector10.csv",
+                "resources\\micro-anarchist_in_shakespear-dist10.csv", 10, sum, normVectors);
         System.out.println("!" + sum.toCSVLine());
 
-        sum = SlidingWindow.getSum("resources\\mini-shakespear_in_anarchist-sblock.csv");
+        sum = SlidingWindow.getSum("resources\\micro-shakespear_in_anarchist-sblock.csv");
         System.out.println("sum: " + sum.toCSVLine());
-        SlidingWindow.slidingWindow("resources\\mini-shakespear_in_anarchist-sblock.csv","resources\\mini-shakespear_in_anarchist-vector1.csv",
-                "resources\\mini-shakespear_in_anarchist-dist1.csv", 1, sum, normVectors);
-        SlidingWindow.slidingWindow("resources\\mini-shakespear_in_anarchist-sblock.csv","resources\\mini-shakespear_in_anarchist-vector10.csv",
-                "resources\\mini-shakespear_in_anarchist-dist10.csv", 10, sum, normVectors);
+        SlidingWindow.slidingWindow("resources\\micro-shakespear_in_anarchist-sblock.csv","resources\\micro-shakespear_in_anarchist-vector1.csv",
+                "resources\\micro-shakespear_in_anarchist-dist1.csv", 1, sum, normVectors);
+        SlidingWindow.slidingWindow("resources\\micro-shakespear_in_anarchist-sblock.csv","resources\\micro-shakespear_in_anarchist-vector10.csv",
+                "resources\\micro-shakespear_in_anarchist-dist10.csv", 10, sum, normVectors);
         System.out.println("!" + sum.toCSVLine());
 
 

@@ -15,9 +15,8 @@ public class SlidingWindow {
     public static void slidingWindow(String srcFilePath, String outVectorsFilePath, String outDistancesFilePath, int windowSize, ADSentenceBlock sumBlock, double[][] normVector) throws IOException {
         System.out.println(sumBlock.toCSVLine());
         ADSentenceBlock windowBlock = new ADSentenceBlock(-1, "");
-        ADSentenceBlock lineBlock = new ADSentenceBlock(-1, "");
         ADSentenceBlock[] window = new ADSentenceBlock[windowSize];
-        int windowPointer = 0;
+        int windowPointer;
 
         System.out.println(ADVector.getCSVHeader());
 
@@ -50,6 +49,12 @@ public class SlidingWindow {
             distanceBw.write(ADVector.getCSVHeader() + ", distance");
             distanceBw.newLine();
 
+            String text = "";
+            for (int i = 0; i < windowSize; i++) {
+                text += window[(windowPointer + i) % windowSize].getFirstSentence();
+            }
+            windowBlock.setFirstSentence(text);
+
             ADVector windowVector = new ADVector(windowBlock);
             ADVector sumVector = new ADVector(sumBlock);
             windowVector.normalize(normVector); //normalize
@@ -73,6 +78,11 @@ public class SlidingWindow {
                 sumBlock.decrease(window[windowPointer]);
 
                 windowPointer = (windowPointer + 1) % windowSize;
+                text = "";
+                for (int i = 0; i < windowSize; i++) {
+                    text += window[(windowPointer + i) % windowSize].getFirstSentence();
+                }
+                windowBlock.setFirstSentence(text);
 
                 windowVector.loadSentenceBlock(windowBlock);
                 sumVector.loadSentenceBlock(sumBlock);
