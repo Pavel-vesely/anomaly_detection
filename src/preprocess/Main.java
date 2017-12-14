@@ -1,5 +1,10 @@
 package preprocess;
 
+import com.google.common.collect.ImmutableList;
+import com.medallia.word2vec.Searcher;
+import com.medallia.word2vec.Word2VecExamples;
+import com.medallia.word2vec.Word2VecModel;
+import com.medallia.word2vec.Word2VecTrainerBuilder;
 import entities.ADSentenceBlock;
 import entities.ADVector;
 import detection.SlidingWindow;
@@ -7,51 +12,134 @@ import detection.SlidingWindow;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.*;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class Main {
+import jdk.nashorn.internal.ir.annotations.Immutable;
+import org.apache.commons.cli.*;
+import org.apache.thrift.TException;
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.Word2Vec;
 
-    public static void main(String[] args) throws IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
+import static java.nio.ByteOrder.BIG_ENDIAN;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+
+
+public class Main {
+    private static final Logger log = Logger.getLogger(Main.class.getName());
+    
+    public static void main(String[] args) throws IOException, Searcher.UnknownWordException, TException, InterruptedException {
+//        Options options = new Options();
+//        options.addOption("h", "help", false, "show help.");
+//        options.addOption("i", "input", true, "input StanfordNLP .XML file path");
+//        options.addOption("o", "output", true, "output .CSV file path, default input + suffix");
+//        options.addOption("w", "window", true, "sliding window size, default 1 sentence");
+//
+//        CommandLineParser parser = new DefaultParser();
+//        CommandLine cmd;
+//        String inFilePath = "";
+//        String outFilePath = "";
+//        int windowSize = 1;
 //        try {
-//            InputStream xmlInput = new FileInputStream("resources\\micro-shakespear.xml");// anarchist_cookbook shakespear
+//            cmd = parser.parse(options, args);
+//
+//            if (cmd.hasOption("h"))
+//                help(options);
+//
+//            if (cmd.hasOption("i")) {
+//                inFilePath = cmd.getOptionValue("i");
+//            } else {
+//                log.log(Level.SEVERE, "input file necessary ");
+//                help(options);
+//            }
+//
+//            if (cmd.hasOption("w")) {
+//                windowSize = Integer.parseInt(cmd.getOptionValue("w"));
+//            }
+//
+//            if (cmd.hasOption("o")) {
+//                outFilePath = cmd.getOptionValue("o");
+//            } else {
+//                outFilePath = inFilePath + "-vec" + Integer.toString(windowSize) + ".csv";
+//            }
+//
+//        } catch (ParseException e) {
+//            log.log(Level.SEVERE, "Failed to parse command line properties", e);
+//            help(options);
+//        }
+//
+//        System.out.println("Parsing " + inFilePath + " into " + outFilePath);
+//
+//        SAXParserFactory factory = SAXParserFactory.newInstance();
+//        long startTime = System.nanoTime();
+//
+//        String sblockFilePath = inFilePath + "-sblock.csv";
+//        try {
+//            InputStream xmlInput = new FileInputStream(inFilePath);// mini micro anarchist_cookbook shakespear articles
 //
 //            SAXParser saxParser = factory.newSAXParser();
-//            StanfordNLPSaxHandler handler = new StanfordNLPSaxHandler("micro-shakespear.xml", "resources\\micro-shakespear-sblock.csv");
+//            StanfordNLPSaxHandler handler = new StanfordNLPSaxHandler(inFilePath, sblockFilePath);
 //            saxParser.parse(xmlInput, handler);
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
 //
+//        double[][] normVectors = SlidingWindow.getNormVectors(sblockFilePath);
+////        System.out.println("mins: " + Arrays.toString(normVectors[0]));
+////        System.out.println("divs: " + Arrays.toString(normVectors[1]));
+//
+//        ADSentenceBlock sum = SlidingWindow.getSum(sblockFilePath);
+////        System.out.println("sum: " + sum.toCSVLine());
+//        SlidingWindow.slidingWindow(sblockFilePath,outFilePath, windowSize, sum, normVectors);
+////        SlidingWindow.slidingWindow("resources\\test5\\articles-in-translated-sblock.csv","resources\\test5\\articles-in-translated-vector10.csv",
+////                "resources\\test5\\articles-in-translated-dist10.csv", 10, sum, normVectors);
+////        System.out.println("!" + sum.toCSVLine());
+////
+////        sum = SlidingWindow.getSum("resources\\test5\\translated-in-articles-sblock.csv");
+////        System.out.println("sum: " + sum.toCSVLine());
+////        SlidingWindow.slidingWindow("resources\\test5\\translated-in-articles-sblock.csv","resources\\test5\\translated-in-articles-vector1.csv",
+////                "resources\\test5\\translated-in-articles-dist1.csv", 1, sum, normVectors);
+////        SlidingWindow.slidingWindow("resources\\test5\\translated-in-articles-sblock.csv","resources\\test5\\translated-in-articles-vector10.csv",
+////                "resources\\test5\\translated-in-articles-dist10.csv", 10, sum, normVectors);
+////        System.out.println("!" + sum.toCSVLine());
+//
+//
+//        System.out.println("Finished. Time elapsed: " + Long.toString((System.nanoTime() - startTime) / 1000000000) + "." +
+//                Long.toString(((System.nanoTime() - startTime) / 1000000) % 1000)+ "s");
+
+
+//        //TODO DEL
+//        try {
+//            InputStream xmlInput = new FileInputStream(inFilePath);// mini micro anarchist_cookbook shakespear articles
+//
+//            SAXParser saxParser = factory.newSAXParser();
+//            FirstReadSaxHandler firstReadSaxHandler = new FirstReadSaxHandler();
+//            saxParser.parse(xmlInput, firstReadSaxHandler);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         long startTime = System.nanoTime();
+        File gModel = new File("/Developer/Vector Models/GoogleNews-vectors-negative300.bin.gz");
+        Word2Vec vec = WordVectorSerializer.readWord2VecModel(gModel);
+        System.out.println(vec.wordsNearest("day", 10));
+//        Word2VecModel w2vModel = Word2VecModel.fromTextFile(glove); //-1389934592
+//        Searcher searcher = w2vModel.forSearch();                                          //-1389934592
+//        ImmutableList<Double> vector = searcher.getRawVector("day");
+//        System.out.println(vector);
+//        System.out.println(searcher.getMatches("day", 10));
+//        Word2VecExamples.demoWord();
 
-
-        double[][] normVectors = SlidingWindow.getNormVectors("resources\\micro-combo-sblock.csv");
-        System.out.println("mins: " + Arrays.toString(normVectors[0]));
-        System.out.println("divs: " + Arrays.toString(normVectors[1]));
-
-        ADSentenceBlock sum = SlidingWindow.getSum("resources\\micro-anarchist_in_shakespear-sblock.csv");
-        System.out.println("sum: " + sum.toCSVLine());
-        SlidingWindow.slidingWindow("resources\\micro-anarchist_in_shakespear-sblock.csv","resources\\micro-anarchist_in_shakespear-vector1.csv",
-                "resources\\micro-anarchist_in_shakespear-dist1.csv", 1, sum, normVectors);
-        SlidingWindow.slidingWindow("resources\\micro-anarchist_in_shakespear-sblock.csv","resources\\micro-anarchist_in_shakespear-vector10.csv",
-                "resources\\micro-anarchist_in_shakespear-dist10.csv", 10, sum, normVectors);
-        System.out.println("!" + sum.toCSVLine());
-
-        sum = SlidingWindow.getSum("resources\\micro-shakespear_in_anarchist-sblock.csv");
-        System.out.println("sum: " + sum.toCSVLine());
-        SlidingWindow.slidingWindow("resources\\micro-shakespear_in_anarchist-sblock.csv","resources\\micro-shakespear_in_anarchist-vector1.csv",
-                "resources\\micro-shakespear_in_anarchist-dist1.csv", 1, sum, normVectors);
-        SlidingWindow.slidingWindow("resources\\micro-shakespear_in_anarchist-sblock.csv","resources\\micro-shakespear_in_anarchist-vector10.csv",
-                "resources\\micro-shakespear_in_anarchist-dist10.csv", 10, sum, normVectors);
-        System.out.println("!" + sum.toCSVLine());
-
-
-        System.out.println("Time elapsed: " + Long.toString((System.nanoTime() - startTime) / 1000000) + "ms");
-
+        System.out.println("Finished. Time elapsed: " + Long.toString((System.nanoTime() - startTime) / 1000000000) + "." +
+                Long.toString(((System.nanoTime() - startTime) / 1000000) % 1000)+ "s");
 //        ADSentenceBlock line1 = new ADSentenceBlock(-1, "");
 //        line1.loadCSVLine("\"mini.xml\",1,1,43,116,39,0,1,35,0,3,0,1,1, 0, 0, 0, 0,0, 1, 1, 0, 0, 4, 0, 1, 3, 1, 0, 0, 0, 0, 4, 1, 0, 0, 0, 1, 2, 0, 0, 0, 0, 0, 12, 0, 4, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 5, 0, 0, 0, 0, 0");
 //        ADSentenceBlock line2 = new ADSentenceBlock(-1, "");
@@ -75,6 +163,39 @@ public class Main {
 //            System.out.println(vector.toCSVLine() + "," + Double.toString(distance));
 //            System.out.println(complVector.toCSVLine() + "," + Double.toString(distance));
 //        }
+
+//        ArrayList<Double> maxDists = new ArrayList(3);
+//        ArrayList<Boolean> anomalies = new ArrayList(3);
+//        double distancesIn[] = {1.0, -5, 7.3, 8, 10.1, 6, 15, 10.1};
+//        boolean anomaliesIn[] = {false, false, true, false, false, false, true, true};
+//        double minKey;
+//        for (int i = 0; i < 3; i++){
+//            maxDists.add(i, -100.0);
+//            anomalies.add(i, false);
+//        }
+//        int index;
+//        for (int i = 0; i < distancesIn.length; i++) {
+//            minKey = Collections.min(maxDists);
+//            if (minKey < distancesIn[i]) {
+//                index = maxDists.indexOf(minKey);
+//                maxDists.set(index, distancesIn[i]);
+//                anomalies.set(index, anomaliesIn[i]);
+//            }
+//            System.out.println(maxDists.toString());
+//            System.out.println(anomalies.toString());
+//        }
+//
+//        int i = 15;
+//        System.out.println();
+//        System.out.println(i / 2.0);
+//        System.out.println(i / 2);
+    }
+
+    private static void help(Options options) {
+        HelpFormatter formater = new HelpFormatter();
+
+        formater.printHelp("Main", options);
+        System.exit(0);
     }
 }
 

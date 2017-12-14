@@ -46,18 +46,18 @@ public class ADVector {
         //Not using word tokens/words
 
         //Readability metrics
-        computeVector[13] = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words); //Flesch-Kincaid Reading Ease
-        computeVector[14] = 11.8 * (syllables / words) + 0.39 * (words / sentences) - 15.59; //Flesch-Kincaid Grade Level
-        computeVector[15] = (words / sentences) + (double) sBlock.getLongWords() / words; //Gunning-Fog Index
-        computeVector[16] = 5.89 * (chars / words) - 0.3 * (sentences / words) / 100.0 - 15.8; //Coleman-Liau Formula
-        computeVector[17] = 4.71 * (chars / words) + 0.5 * (words / sentences) - 21.43; //Automated Readability Index
-        computeVector[18] = (words / sentences) + 100.0 * ((double) sBlock.getSixCharWords() / words); // Lix Formula
-        computeVector[19] = 3 + Math.sqrt((double) sBlock.getLongWords() * 30 / sentences); //SMOG Index
+        computeVector[14] = 206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words); //Flesch-Kincaid Reading Ease
+        computeVector[15] = 11.8 * (syllables / words) + 0.39 * (words / sentences) - 15.59; //Flesch-Kincaid Grade Level
+        computeVector[16] = (words / sentences) + (double) sBlock.getLongWords() / words; //Gunning-Fog Index
+        computeVector[17] = 5.89 * (chars / words) - 0.3 * (sentences / words) / 100.0 - 15.8; //Coleman-Liau Formula
+        computeVector[18] = 4.71 * (chars / words) + 0.5 * (words / sentences) - 21.43; //Automated Readability Index
+        computeVector[19] = (words / sentences) + 100.0 * ((double) sBlock.getSixCharWords() / words); // Lix Formula
+        computeVector[20] = 3 + Math.sqrt((double) sBlock.getLongWords() * 30 / sentences); //SMOG Index
 
         //Sentiment metrics
         int[] sentimentArray = sBlock.getSentimentArray();
         for (int i = 0; i < 5; i++) {
-            computeVector[20 + i] = (double) sentimentArray[i] / sentences;
+            computeVector[21 + i] = (double) sentimentArray[i] / sentences;
         }
 
         //POS metrics
@@ -86,8 +86,8 @@ public class ADVector {
     public String toCSVLine() {
         return "\"" + header + "\"," +
                 Integer.toString(id) + "," +
-                Arrays.toString(computeVector).replace("[", "").replace("]", "") +
-                ",\" " + text + "\"";
+                Arrays.toString(computeVector).replace("[", "").replace("]", "");// +
+                //",\" " + text + "\"";
     }
 
     public String differenceToCSVLine(ADVector other) {
@@ -104,16 +104,40 @@ public class ADVector {
         return resultString;
     }
 
+    public String cosineDistanceToCSVLine(ADVector other) {
+        String resultString = "\"" + header + "\"," +
+                Integer.toString(id);
+        double[] otherVector = other.getComputeVector();
+        resultString += ",\" " + text + "\"";
+        double multiplySum = 0.0;
+        double thisSqrtSum = 0.0;
+        double otherSqrtSum = 0.0;
+        for (int i = 0; i < VECTOR_LEN; i++) {
+            multiplySum += this.computeVector[i] * otherVector[i];
+            thisSqrtSum += this.computeVector[i] * this.computeVector[i];
+            otherSqrtSum += otherVector[i] * otherVector[i];
+        }
+        double distance = 1 - (multiplySum / (Math.sqrt(thisSqrtSum) * Math.sqrt(otherSqrtSum)));
+        resultString += "," + Double.toString(distance);
+        return resultString;
+    }
+
     public double[] getComputeVector() {
         return computeVector;
     }
 
     public static String getCSVHeader() {
+        String posTags = PosTags.getCSVHeaderString();
+        posTags = posTags.substring(0,posTags.length() - 1);
         return "header, id, sentenceLength, wordLength, syllablesPerWord, shortSentences, longSentences, shortWords, longWords, " +
-                "sixCharWords, passive, questions, startsWithCCorIN, puncChars, :chars, commas," +
+                "sixCharWords, passive, questions, startsWithCCorIN, puncChars, chars, commas," +
                 "Flesch-Kincaid Reading Ease, Flesch-Kincaid Grade Level, Gunning-Fog Index, Coleman-Liau Formula, Automated Readability Index, Lix Formula, SMOG index" +
-                "sentiment0, sentiment1, sentiment2, sentiment3, sentiment4, " + PosTags.getCSVHeaderString() + ", text";
+                "sentiment0, sentiment1, sentiment2, sentiment3, sentiment4, " + posTags;// + " text";
 
+    }
+
+    public static String getShortHeader() {
+        return "header, id, text, distance";
     }
 }
 

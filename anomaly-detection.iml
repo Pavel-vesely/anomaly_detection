@@ -17,6 +17,14 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="library" name="eu.crydee:syllable-counter:3.0.1" level="project" />
+    <orderEntry type="library" exported="" name="eu.crydee:syllable-counter:3.0.1" level="project" />
+    <orderEntry type="library" exported="" name="commons-cli:commons-cli:1.4" level="project" />
+    <orderEntry type="library" name="com.medallia.word2vec:Word2VecJava:0.10.3" level="project" />
+    <orderEntry type="library" name="org.slf4j:slf4j-nop:1.6.2" level="project" />
+    <orderEntry type="library" name="org.deeplearning4j:deeplearning4j-core:0.9.1" level="project" />
+    <orderEntry type="library" name="org.nd4j:nd4j-native-platform:0.9.1" level="project" />
+    <orderEntry type="library" name="org.datavec:datavec-api:0.9.1" level="project" />
+    <orderEntry type="library" name="org.deeplearning4j:deeplearning4j-nlp:0.9.1" level="project" />
+    <orderEntry type="library" name="org.nd4j:nd4j-api:0.0.3.5.5.4" level="project" />
   </component>
 </module>
